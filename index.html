@@ -1,0 +1,425 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Interactive Playground</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #080d1c;
+    color: white;
+    overflow-x: hidden;
+}
+
+/* INTRO ANIMATION */
+
+#intro {
+    position: fixed;
+    inset: 0;
+    background: #050817;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    transition: opacity 1.5s ease, filter 1.5s ease;
+}
+
+.logo-circles {
+    position: relative;
+    width: 260px;
+    height: 260px;
+    animation: reveal 2s ease forwards;
+}
+
+.circle {
+    position: absolute;
+    border: 3px solid #80aaff;
+    border-radius: 50%;
+    background: repeating-linear-gradient(
+        135deg,
+        transparent 0px,
+        transparent 5px,
+        #9cbaff 6px,
+        transparent 9px
+    );
+    box-shadow: 0 0 18px #397cff;
+    animation: rotate 8s linear infinite;
+}
+
+.circle:nth-child(1) {
+    inset: 0;
+}
+
+.circle:nth-child(2) {
+    inset: 28px;
+    animation-direction: reverse;
+}
+
+.circle:nth-child(3) {
+    inset: 56px;
+}
+
+.circle:nth-child(4) {
+    inset: 84px;
+    animation-direction: reverse;
+}
+
+@keyframes rotate {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes reveal {
+    from { transform: scale(0.1); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+#intro.hide {
+    opacity: 0;
+    filter: blur(25px);
+    pointer-events: none;
+}
+
+/* MAIN WEBSITE */
+
+#website {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    min-height: 100vh;
+}
+
+#website.show {
+    opacity: 1;
+}
+
+/* TOP BAR */
+
+header {
+    height: 70px;
+    background: rgba(45, 105, 200, 0.28);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid #344c83;
+    display: flex;
+    align-items: center;
+    padding: 0 25px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.brand {
+    font-size: 23px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #a9ccff;
+}
+
+/* LAYOUT */
+
+.layout {
+    display: flex;
+    min-height: calc(100vh - 70px);
+}
+
+/* SIDEBAR */
+
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #101b39;
+    border-right: 1px solid #263e70;
+    padding: 25px 12px;
+}
+
+.sidebar h3 {
+    color: #789bd5;
+    font-size: 13px;
+    margin: 0 10px 20px;
+    letter-spacing: 2px;
+}
+
+.nav-button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 15px;
+    margin-bottom: 9px;
+    color: #d5e2ff;
+    background: transparent;
+    border: none;
+    border-radius: 9px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.nav-button:hover,
+.nav-button.active {
+    background: #244c91;
+    box-shadow: 0 0 16px #347cff;
+}
+
+/* MAIN CONTENT */
+
+main {
+    flex: 1;
+    min-width: 0;
+    padding: 35px;
+}
+
+.section {
+    margin-bottom: 45px;
+    scroll-margin-top: 90px;
+}
+
+.section h1 {
+    font-size: 30px;
+    margin-bottom: 12px;
+}
+
+.section p {
+    color: #9eafd0;
+    line-height: 1.7;
+}
+
+/* PLAYGROUND */
+
+.playground {
+    position: relative;
+    width: 100%;
+    height: 430px;
+    background: #138b43;
+    border: 2px solid #36df79;
+    border-radius: 14px;
+    margin-top: 22px;
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: 0 0 15px rgba(38, 255, 126, 0.2);
+}
+
+.star {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    color: #ffe32b;
+    font-size: 34px;
+    pointer-events: none;
+    text-shadow: 0 0 10px #fff000;
+    animation: starPop 0.25s ease-out;
+}
+
+@keyframes starPop {
+    from { transform: translate(-50%, -50%) scale(0); }
+    to { transform: translate(-50%, -50%) scale(1); }
+}
+
+/* RESET */
+
+.reset {
+    margin-top: 18px;
+    padding: 12px 35px;
+    background: #1554b9;
+    color: white;
+    border: 1px solid #8bbaff;
+    border-radius: 9px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.reset:hover {
+    background: #267bff;
+    box-shadow: 0 0 20px #398cff;
+}
+
+/* INTRODUCTION GLOW */
+
+.glow {
+    animation: highlight 1.1s ease-in-out 2;
+}
+
+@keyframes highlight {
+    0%, 100% { box-shadow: none; }
+    50% {
+        box-shadow: 0 0 22px #65aaff,
+                    0 0 40px #287bff;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 650px) {
+    .sidebar {
+        width: 125px;
+        padding: 15px 7px;
+    }
+
+    .nav-button {
+        padding: 12px 7px;
+        font-size: 12px;
+    }
+
+    main {
+        padding: 18px 12px;
+    }
+
+    .section h1 {
+        font-size: 23px;
+    }
+
+    .playground {
+        height: 350px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGO INTRO -->
+
+<div id="intro">
+    <div class="logo-circles">
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+        <div class="circle"></div>
+    </div>
+</div>
+
+<!-- WEBSITE -->
+
+<div id="website">
+
+    <header>
+        <div class="brand">✦ PlaySpace</div>
+    </header>
+
+    <div class="layout">
+
+        <!-- LEFT SIDEBAR -->
+
+        <aside class="sidebar" id="sidebar">
+            <h3>MENU</h3>
+
+            <button class="nav-button active" onclick="navigate('home', this)">⌂ Home</button>
+
+            <button class="nav-button" onclick="navigate('dashboard', this)">▥ Dashboard</button>
+
+            <button class="nav-button" onclick="navigate('playground-section', this)">✦ Playground</button>
+
+            <button class="nav-button" onclick="navigate('settings', this)">⚙ Settings</button>
+
+            <button class="nav-button" onclick="navigate('about', this)">ⓘ About</button>
+        </aside>
+
+        <!-- RIGHT CONTENT -->
+
+        <main>
+
+            <section class="section" id="home">
+                <h1>Welcome to PlaySpace</h1>
+                <p>Explore, experiment and interact with the playground.</p>
+            </section>
+
+            <section class="section" id="dashboard">
+                <h1>Dashboard</h1>
+                <p>Your interactive dashboard.</p>
+            </section>
+
+            <section class="section" id="playground-section">
+                <h1>Playground</h1>
+                <p>Click anywhere inside the green area to create a star.</p>
+
+                <div class="playground" id="playground"></div>
+
+                <button class="reset" onclick="resetStars()">Reset</button>
+            </section>
+
+            <section class="section" id="settings">
+                <h1>Settings</h1>
+                <p>Website settings will be added here.</p>
+            </section>
+
+            <section class="section" id="about">
+                <h1>About</h1>
+                <p>Welcome to the PlaySpace experience.</p>
+            </section>
+
+        </main>
+    </div>
+</div>
+
+<script>
+
+// INTRODUCTION SEQUENCE
+
+window.addEventListener("load", () => {
+
+    setTimeout(() => {
+        document.getElementById("intro").classList.add("hide");
+        document.getElementById("website").classList.add("show");
+    }, 3000);
+
+    setTimeout(() => {
+        document.querySelectorAll(".section").forEach((section, index) => {
+            setTimeout(() => {
+                section.classList.add("glow");
+            }, index * 500);
+        });
+    }, 4500);
+
+});
+
+// SIDEBAR NAVIGATION
+
+function navigate(sectionId, button) {
+
+    document.getElementById(sectionId).scrollIntoView({
+        behavior: "smooth"
+    });
+
+    document.querySelectorAll(".nav-button").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    button.classList.add("active");
+}
+
+// ADD YELLOW STARS
+
+const playground = document.getElementById("playground");
+
+playground.addEventListener("click", function(event) {
+
+    const rect = playground.getBoundingClientRect();
+
+    const star = document.createElement("span");
+
+    star.className = "star";
+    star.textContent = "★";
+
+    star.style.left = (event.clientX - rect.left) + "px";
+    star.style.top = (event.clientY - rect.top) + "px";
+
+    playground.appendChild(star);
+
+});
+
+// RESET PLAYGROUND
+
+function resetStars() {
+    playground.innerHTML = "";
+}
+
+</script>
+
+</body>
+</html>
