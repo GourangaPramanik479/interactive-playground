@@ -463,6 +463,7 @@ const statusText = document.getElementById("status");
 let points = [];
 const maxStars = 5;
 
+
 playground.addEventListener("click", function(event) {
 
     if (points.length >= maxStars) {
@@ -471,53 +472,48 @@ playground.addEventListener("click", function(event) {
 
     const rect = playground.getBoundingClientRect();
 
-    // Store coordinates as percentages so the drawing
-    // remains correctly positioned if the screen resizes.
-    const x = ((event.clientX - rect.left) / rect.width) * 100;
-    const y = ((event.clientY - rect.top) / rect.height) * 100;
+    // Account for the playground border
+    const x = event.clientX - rect.left - playground.clientLeft;
+    const y = event.clientY - rect.top - playground.clientTop;
 
     points.push({ x, y });
 
-    // Create the yellow star
+    // Create yellow star
     const star = document.createElement("div");
     star.className = "point-star";
     star.textContent = "★";
-    star.style.left = x + "%";
-    star.style.top = y + "%";
+    star.style.left = x + "px";
+    star.style.top = y + "px";
 
     playground.appendChild(star);
 
     statusText.textContent = "Stars placed: " + points.length + " / 5";
 
-    // Automatically draw the figures after five stars
     if (points.length === maxStars) {
         drawPentagonAndStar();
         statusText.textContent = "Pentagon and five-pointed star created!";
     }
 });
 
+
 /* DRAW PENTAGON AND PENTAGRAM */
 
 function drawPentagonAndStar() {
 
-    const rect = playground.getBoundingClientRect();
     const width = playground.clientWidth;
     const height = playground.clientHeight;
 
-    // Match SVG dimensions exactly with the playground
+    // Set exact SVG drawing dimensions
     drawingLayer.setAttribute("viewBox", `0 0 ${width} ${height}`);
     drawingLayer.setAttribute("width", width);
     drawingLayer.setAttribute("height", height);
 
     drawingLayer.innerHTML = "";
 
-    // Convert stored percentage coordinates into pixels
-    let orderedPoints = points.map(point => ({
-        x: point.x * width / 100,
-        y: point.y * height / 100
-    }));
+    // Coordinates are already in pixels
+    let orderedPoints = [...points];
 
-    // Calculate the centre
+    // Calculate centre
     const centerX = orderedPoints.reduce((sum, p) => sum + p.x, 0) / 5;
     const centerY = orderedPoints.reduce((sum, p) => sum + p.y, 0) / 5;
 
@@ -527,19 +523,15 @@ function drawPentagonAndStar() {
                Math.atan2(b.y - centerY, b.x - centerX);
     });
 
-    // Create a closed path through the points
+    // Generate closed path
     function createPath(indices) {
-        let path = "";
-
-        indices.forEach((index, i) => {
+        return indices.map((index, i) => {
             const p = orderedPoints[index];
-            path += `${i === 0 ? "M" : "L"} ${p.x} ${p.y} `;
-        });
-
-        return path + "Z";
+            return `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`;
+        }).join(" ") + " Z";
     }
 
-    // Draw the complete pentagon
+    // Pentagon
     const pentagon = document.createElementNS(
         "http://www.w3.org/2000/svg", "path"
     );
@@ -548,7 +540,7 @@ function drawPentagonAndStar() {
     pentagon.setAttribute("class", "pentagon-line");
     drawingLayer.appendChild(pentagon);
 
-    // Draw all five diagonals of the pentagram
+    // Pentagram
     const star = document.createElementNS(
         "http://www.w3.org/2000/svg", "path"
     );
