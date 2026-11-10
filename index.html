@@ -205,9 +205,11 @@ h2 {
 /* SVG DRAWING LAYER */
 .drawing-layer {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+    display: block;
     pointer-events: none;
     z-index: 2;
     overflow: visible;
@@ -495,58 +497,67 @@ playground.addEventListener("click", function(event) {
 });
 
 /* DRAW PENTAGON AND PENTAGRAM */
+
 function drawPentagonAndStar() {
 
+    const rect = playground.getBoundingClientRect();
     const width = playground.clientWidth;
     const height = playground.clientHeight;
 
+    // Match SVG dimensions exactly with the playground
     drawingLayer.setAttribute("viewBox", `0 0 ${width} ${height}`);
+    drawingLayer.setAttribute("width", width);
+    drawingLayer.setAttribute("height", height);
+
     drawingLayer.innerHTML = "";
 
-    // Convert percentage coordinates into SVG coordinates
+    // Convert stored percentage coordinates into pixels
     let orderedPoints = points.map(point => ({
         x: point.x * width / 100,
         y: point.y * height / 100
     }));
 
-    // Find the centre of the five points
+    // Calculate the centre
     const centerX = orderedPoints.reduce((sum, p) => sum + p.x, 0) / 5;
     const centerY = orderedPoints.reduce((sum, p) => sum + p.y, 0) / 5;
 
-    // Arrange points in circular order around their centre
+    // Sort points around the centre
     orderedPoints.sort((a, b) => {
-        const angleA = Math.atan2(a.y - centerY, a.x - centerX);
-        const angleB = Math.atan2(b.y - centerY, b.x - centerX);
-        return angleA - angleB;
+        return Math.atan2(a.y - centerY, a.x - centerX) -
+               Math.atan2(b.y - centerY, b.x - centerX);
     });
 
-    function makePath(indices) {
-        return indices.map((index, i) => {
-            const point = orderedPoints[index];
-            return (i === 0 ? "M " : "L ") +
-                point.x + " " + point.y;
-        }).join(" ") + " Z";
+    // Create a closed path through the points
+    function createPath(indices) {
+        let path = "";
+
+        indices.forEach((index, i) => {
+            const p = orderedPoints[index];
+            path += `${i === 0 ? "M" : "L"} ${p.x} ${p.y} `;
+        });
+
+        return path + "Z";
     }
 
-    // Draw the outer pentagon
+    // Draw the complete pentagon
     const pentagon = document.createElementNS(
         "http://www.w3.org/2000/svg", "path"
     );
 
-    pentagon.setAttribute("d", makePath([0, 1, 2, 3, 4]));
+    pentagon.setAttribute("d", createPath([0, 1, 2, 3, 4]));
     pentagon.setAttribute("class", "pentagon-line");
     drawingLayer.appendChild(pentagon);
 
-    // Draw the five-pointed star:
-    // Connect every second vertex.
+    // Draw all five diagonals of the pentagram
     const star = document.createElementNS(
         "http://www.w3.org/2000/svg", "path"
     );
 
-    star.setAttribute("d", makePath([0, 2, 4, 1, 3]));
+    star.setAttribute("d", createPath([0, 2, 4, 1, 3]));
     star.setAttribute("class", "star-line");
     drawingLayer.appendChild(star);
 }
+
 
 /* RESET */
 function resetPlayground() {
